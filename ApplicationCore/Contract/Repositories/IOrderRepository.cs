@@ -1,6 +1,6 @@
 namespace Order.Contract.Repositories;
 
-public interface IOrderRepository
+public interface IOrderRepository:IBaseRepository<ApplicationCore.Entities.Order>
 {
     Task<List<ApplicationCore.Entities.Order>> GetAllOrders();
     Task<ApplicationCore.Entities.Order> GetOrdersByCustomerId(int customerId);

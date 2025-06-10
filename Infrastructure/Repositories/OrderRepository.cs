@@ -4,13 +4,11 @@ using Order.Contract.Repositories;
 
 namespace Infrastructure.Repositories;
 
-public class OrderRepository: IOrderRepository
+public class OrderRepository :  BaseRepository<ApplicationCore.Entities.Order>,IOrderRepository 
 {
-    private readonly OrderDbContext _dbContext;
-
-    public OrderRepository(OrderDbContext dbContext)
+    
+    public OrderRepository(OrderDbContext dbContext): base(dbContext)
     {
-        _dbContext = dbContext;
     }
     public async Task<List<ApplicationCore.Entities.Order>> GetAllOrders()
     {
