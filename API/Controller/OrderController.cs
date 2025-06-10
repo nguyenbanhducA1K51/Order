@@ -1,4 +1,6 @@
 using System.Net.Mime;
+using Order.Contract.Services;
+using Order.Models;
 
 namespace API.Controller;
 using Microsoft.AspNetCore.Mvc;
@@ -11,33 +13,33 @@ using Order.Contract.Repositories;
 [Route("api/[controller]")]
 public class OrderController : ControllerBase
 {
-    private readonly IOrderRepository _orderRepository;
+    private readonly IOrderService _orderService;
 
-    public OrderController(IOrderRepository orderRepository)
+    public OrderController(IOrderService orderService)
     {
-        _orderRepository = orderRepository;
+        _orderService = orderService;
     }
     
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Order>>> GetAllOrders()
     {
-        var orders = await _orderRepository.GetAllOrders();
+        var orders = await _orderService.GetAllOrders();
         return Ok(orders);
     }
     
     [HttpPost]
-    public async Task<ActionResult<Order>> SaveOrder([FromBody] Order order)
+    public async Task<ActionResult<OrderModal>> SaveOrder([FromBody] OrderModal order)
     {
         if (order == null) return BadRequest();
 
-        var savedOrder = await _orderRepository.SaveOrder(order);
+        var savedOrder = await _orderService.SaveOrder(order);
         return CreatedAtAction(nameof(GetOrderByCustomerId), new { customerId = savedOrder.CustomerId }, savedOrder);
     }
     
     [HttpGet("customer/{customerId}")]
     public async Task<ActionResult<Order>> GetOrderByCustomerId(int customerId)
     {
-        var order = await _orderRepository.GetOrdersByCustomerId(customerId);
+        var order = await _orderService.GetOrdersByCustomerId(customerId);
         if (order == null) return NotFound();
 
         return Ok(order);
@@ -46,19 +48,19 @@ public class OrderController : ControllerBase
     [HttpDelete("{orderId}")]
     public async Task<IActionResult> DeleteOrder(int orderId)
     {
-        var deletedOrder = await _orderRepository.DeleteOrder(orderId);
+        var deletedOrder = await _orderService.DeleteOrder(orderId);
         if (deletedOrder == null) return NotFound();
 
         return NoContent();
     }
     
     [HttpPut("{orderId}")]
-    public async Task<ActionResult<Order>> UpdateOrder(int orderId, [FromBody] Order order)
+    public async Task<ActionResult<OrderModal>> UpdateOrder(int orderId, [FromBody] OrderModal order)
     {
         if (order == null || order.Id != orderId)
             return BadRequest();
 
-        var updatedOrder = await _orderRepository.UpdateOrder(order);
+        var updatedOrder = await _orderService.UpdateOrder(order);
         if (updatedOrder == null) return NotFound();
 
         return Ok(updatedOrder);

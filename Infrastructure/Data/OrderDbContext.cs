@@ -23,6 +23,14 @@ public class OrderDbContext:DbContext
     {
         modelBuilder.Entity<Order_Details>(ConfigureOrderDetails);
         modelBuilder.Entity<ApplicationCore.Entities.Order>(ConfigureOrder);
+        modelBuilder.Entity<Shopping_Cart_Item>(ConfigureShoppingCartItems);
+        modelBuilder.Entity<User_Address>(ConfigureUserAddress);
+        modelBuilder.Entity<Shopping_Cart>(ConfigreShoppingCart);
+        modelBuilder.Entity<Payment_Type>(ConfigurePaymentTypes);
+        modelBuilder.Entity<Payment_Method>(ConfigurePaymentMethods);
+        modelBuilder.Entity<Customer>(ConfigureCustomer);
+        modelBuilder.Entity<Address>(ConfigureAddresses);
+
     }
 
     private void ConfigureOrderDetails(EntityTypeBuilder<Customer> builder)
@@ -30,7 +38,7 @@ public class OrderDbContext:DbContext
         builder.HasKey(customer => customer.Id);
     }
 
-    private void ConfigureOrder(EntityTypeBuilder<User_Address> builder)
+    private void ConfigureUserAddress(EntityTypeBuilder<User_Address> builder)
     {
         builder.HasKey(ua => ua.Id);
         builder.HasOne(ua => ua.Address)
@@ -42,9 +50,9 @@ public class OrderDbContext:DbContext
 
     }
 
-    private void ConfigureShoppingCardItem(EntityTypeBuilder<Shopping_Cart_Item> builder)
+    private void ConfigureCustomer(EntityTypeBuilder<Customer> builder)
     {
-        
+        builder.HasKey(customer => customer.Id);
     }
 
     private void ConfigureAddresses(EntityTypeBuilder<Address> builder)
@@ -62,7 +70,7 @@ public class OrderDbContext:DbContext
             
     }
 
-    private void ConfigreShoppingCart(EntityTypeBuilder<Shopping_Cart_Item> builder)
+    private void ConfigreShoppingCart(EntityTypeBuilder<Shopping_Cart> builder)
     {
         builder.HasKey(shoppingCart => shoppingCart.Id);
     }
