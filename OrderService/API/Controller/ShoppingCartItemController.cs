@@ -14,7 +14,7 @@ public class ShoppingCartItemController:ControllerBase
         _shoppingCartItemService = shoppingCartItemService;
     }
 
-    [HttpDelete]
+    [HttpDelete("DeleteShoppingCart/{id}")]
     public async Task<IActionResult> DeleteShoppingCartItem(int id)
     {
         return NoContent();

@@ -1,6 +1,7 @@
 namespace Order.Contract.Repositories;
 
-public class ICustomerRepository
+public interface ICustomerRepository:IBaseRepository<ApplicationCore.Entities.Customer>
 {
-    
+    Task<ApplicationCore.Entities.Customer> CreateCustomerAsync(ApplicationCore.Entities.Customer customer);
+    Task<List< ApplicationCore.Entities.Customer>> GetAllCustomerAsync();
 }

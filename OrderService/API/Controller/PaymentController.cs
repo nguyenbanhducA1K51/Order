@@ -16,25 +16,25 @@ public class PaymentController:ControllerBase
         _paymentTypeService = paymentTypeService;
     }
 
-    [HttpGet]
+    [HttpGet("GetPaymentByCustomerId/{customerId}")]
     public async Task<ActionResult<PaymentMethodModal> >GetPaymentByCustomerId(int customerId)
     {
         return NoContent();
     }
 
-    [HttpPost]
+    [HttpPost("SavePayment")]
     public async Task<IActionResult> SavePayment(PaymentMethodModal payment)
     {
         return NoContent();
     }
 
-    [HttpDelete]
+    [HttpDelete("DeletePayment")]
     public async Task<IActionResult> DeletePayment(int id)
     {
         return NoContent();
     }
 
-    [HttpPut]
+    [HttpPut("UpdatePayment")]
     public async Task<IActionResult> UpdatePayment(PaymentMethodModal payment)
     {
         return NoContent();

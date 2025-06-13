@@ -18,14 +18,14 @@ public class CustomerController:ControllerBase
         _customerService = customerService;
     }
 
-    [HttpGet]
+    [HttpGet("GetCustomerAddressById")]
     public async Task<ActionResult<AddressModal> >GetCustomerAddressById(int id)
     {
         return NoContent();
 
     }
     
-    [HttpPost]
+    [HttpPost("SaveCustomerAddress")]
     public async Task<IActionResult>SaveCustomerAddress(AddressModal address, int CustomerId)
     {
         return NoContent();

@@ -20,14 +20,14 @@ public class OrderController : ControllerBase
         _orderService = orderService;
     }
     
-    [HttpGet]
+    [HttpGet("GetAllOrders")]
     public async Task<ActionResult<IEnumerable<Order>>> GetAllOrders()
     {
         var orders = await _orderService.GetAllOrders();
         return Ok(orders);
     }
     
-    [HttpPost]
+    [HttpPost("SaveOrder")]
     public async Task<ActionResult<OrderModal>> SaveOrder([FromBody] OrderModal order)
     {
         if (order == null) return BadRequest();
@@ -36,7 +36,7 @@ public class OrderController : ControllerBase
         return CreatedAtAction(nameof(GetOrderByCustomerId), new { customerId = savedOrder.CustomerId }, savedOrder);
     }
     
-    [HttpGet("customer/{customerId}")]
+    [HttpGet("GetOrderByCustomerId/{customerId}")]
     public async Task<ActionResult<Order>> GetOrderByCustomerId(int customerId)
     {
         var order = await _orderService.GetOrdersByCustomerId(customerId);
@@ -45,7 +45,7 @@ public class OrderController : ControllerBase
         return Ok(order);
     }
     
-    [HttpDelete("{orderId}")]
+    [HttpDelete("DeleteOrder/{orderId}")]
     public async Task<IActionResult> DeleteOrder(int orderId)
     {
         var deletedOrder = await _orderService.DeleteOrder(orderId);
@@ -54,7 +54,7 @@ public class OrderController : ControllerBase
         return NoContent();
     }
     
-    [HttpPut("{orderId}")]
+    [HttpPut("UpdateOrder/{orderId}")]
     public async Task<ActionResult<OrderModal>> UpdateOrder(int orderId, [FromBody] OrderModal order)
     {
         if (order == null || order.Id != orderId)

@@ -12,19 +12,19 @@ public class ShoppingCartController:ControllerBase
     {
         _shoppingCartService = shoppingCartService;
     }
-[HttpGet]
+[HttpGet("GetShoppingCartByCustomerId/{customerId}")]
     public async Task<IActionResult> GetShoppingCartByCustomerId()
     {
         return NoContent();
     }
 
-    [HttpPost]
+    [HttpPost("SaveShoppingCart")]
     public async Task<IActionResult> SaveShoppingCart()
     {
         return NoContent();
     }
 
-    [HttpDelete]
+    [HttpDelete("DeleteShoppingCart/{id}")]
     public async Task<IActionResult> DeleteShoppingCart(int id)
     {
         return NoContent();
