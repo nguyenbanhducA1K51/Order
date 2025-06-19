@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  productservice:
+    build:
+      context: ProductService
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "5050:5050"
+    environment:
+      - ASPNETCORE_URLS=http://+:5050
+    networks:
+      - productnet
+  orderservice:
+    build:
+      context: OrderService
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "5051:5051"
+    environment:
+      - ASPNETCORE_URLS=http://+:5051
+    networks:
+      - productnet
+networks:
+  productnet:

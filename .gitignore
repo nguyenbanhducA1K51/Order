@@ -1,0 +1,34 @@
+.DS_Store
+idea
+packages-microsoft-prod.deb 
+
+**/.env
+**/.env.dev 
+cmd.txt
+**/Logs/
+
+# Build results
+**/bin/
+**/obj/
+**/wwwroot/
+# Visual Studio user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / JetBrains
+.idea/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# NuGet Packages (optional if using package restore)
+*.nupkg
+*.snupkg
+*.nuspec
+
+# Local configuration
+*.launch.json
+
