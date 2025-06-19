@@ -23,7 +23,7 @@ COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "API.dll"]
 
 # ---------------------
-# Dev image without dotnet watch (bind-mount source code)
+# Dev image with dotnet watch (bind-mount source code)
 # ---------------------
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS dev
 WORKDIR /app

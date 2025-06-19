@@ -20,20 +20,23 @@ var envMappings = new Dictionary<string, string>
     {"blobconn", "ConnectionStrings:BlobStorage"}
 };
 
+string aspnetcoreUrls = "http://0.0.0.0:80"; 
+
 foreach (var mapping in envMappings)
 {
     var value = Environment.GetEnvironmentVariable(mapping.Key);
     if (!string.IsNullOrEmpty(value))
     {
         builder.Configuration[mapping.Value] = value;
-    }
-
-    if (mapping.Key == "aspnetcore-urls" && string.IsNullOrEmpty(value))
-    {
-        builder.Configuration[mapping.Value] = "http://0.0.0.0";
+        
+        if (mapping.Key == "aspnetcore-urls")
+        {
+            aspnetcoreUrls = value;
+        }
     }
 }
 
+builder.WebHost.UseUrls(aspnetcoreUrls);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -65,6 +68,13 @@ var app = builder.Build();
 
 var actionProvider = app.Services.GetService<IActionDescriptorCollectionProvider>();
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
+
+foreach (var mapping in envMappings)
+{
+    logger.LogInformation($" {mapping.Value} with value {Environment.GetEnvironmentVariable(mapping.Key)}");
+}
+
+
 if (actionProvider != null)
 {
     var actionDescriptors = actionProvider.ActionDescriptors.Items;
