@@ -34,12 +34,12 @@ jobs:
         with:
           appSourcePath: ${{ github.workspace }}
           dockerfilePath: OrderService/Dockerfile  # 👈 specify the Dockerfile path if not at root
-          registryUrl: AntraRegistry.azurecr.io  # 👈 replace with your actual ACR URL
+          registryUrl: antraregistry.azurecr.io  # 👈 replace with your actual ACR URL
           registryUsername: ${{ secrets.ORDERSERVICE_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.ORDERSERVICE_REGISTRY_PASSWORD }}
           containerAppName: order-service
           resourceGroup: Antra
-          imageToBuild: AntraRegistry.azurecr.io/order-service:${{ github.sha }}  # 👈 make sure this matches the registry
+          imageToBuild: antraregistry.azurecr.io/order-service:${{ github.sha }}  # 👈 make sure this matches the registry
           buildArguments: |
             target=final
             ARG2=value2
