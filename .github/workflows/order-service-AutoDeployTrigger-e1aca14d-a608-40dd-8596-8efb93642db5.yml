@@ -1,27 +1,25 @@
 name: Trigger auto deployment for order-service
 
-# When this action will be executed
 on:
-  # Automatically trigger it when detected changes in repo
   push:
-    branches: 
-      [ master ]
+    branches:
+      - master
     paths:
-    - '**'
-    - '.github/workflows/order-service-AutoDeployTrigger-e1aca14d-a608-40dd-8596-8efb93642db5.yml'
+      - '**'
+      - '.github/workflows/order-service-AutoDeployTrigger-e1aca14d-a608-40dd-8596-8efb93642db5.yml'
 
-  # Allow manual trigger 
-  workflow_dispatch:      
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions: 
-      id-token: write #This is required for requesting the OIDC JWT Token
-      contents: read #Required when GH token is used to authenticate with private repo
+
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
-      - name: Checkout to the branch
+      - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Azure Login
@@ -31,18 +29,17 @@ jobs:
           tenant-id: ${{ secrets.ORDERSERVICE_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.ORDERSERVICE_AZURE_SUBSCRIPTION_ID }}
 
-      - name: Build and push container image to registry
+      - name: Build and deploy to Azure Container Apps
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ${{ github.workspace }}
-          _dockerfilePathKey_: _dockerfilePath_
-          registryUrl: 
+          dockerfilePath: OrderService/Dockerfile  # 👈 specify the Dockerfile path if not at root
+          registryUrl: AntraRegistry.azurecr.io  # 👈 replace with your actual ACR URL
           registryUsername: ${{ secrets.ORDERSERVICE_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.ORDERSERVICE_REGISTRY_PASSWORD }}
           containerAppName: order-service
           resourceGroup: Antra
-          imageToBuild: default/[parameters('containerAppName')]:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
-
-
+          imageToBuild: AnTraregistry.azurecr.io/order-service:${{ github.sha }}  # 👈 make sure this matches the registry
+          buildArguments: |
+            target=final
+            ARG2=value2
