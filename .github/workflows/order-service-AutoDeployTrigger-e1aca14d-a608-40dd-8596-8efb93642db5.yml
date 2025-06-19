@@ -39,7 +39,7 @@ jobs:
           registryPassword: ${{ secrets.ORDERSERVICE_REGISTRY_PASSWORD }}
           containerAppName: order-service
           resourceGroup: Antra
-          imageToBuild: AnTraregistry.azurecr.io/order-service:${{ github.sha }}  # 👈 make sure this matches the registry
+          imageToBuild: AntraRegistry.azurecr.io/order-service:${{ github.sha }}  # 👈 make sure this matches the registry
           buildArguments: |
             target=final
             ARG2=value2
