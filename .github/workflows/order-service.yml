@@ -5,8 +5,8 @@ on:
     branches:
       - master
     paths:
-      - '**'
-      - '.github/workflows/order-service-AutoDeployTrigger-e1aca14d-a608-40dd-8596-8efb93642db5.yml'
+      - 'OrderService'
+      - '.github/workflows/order-service.yml'
 
   workflow_dispatch:
 
@@ -32,8 +32,8 @@ jobs:
       - name: Build and deploy to Azure Container Apps
         uses: azure/container-apps-deploy-action@v2
         with:
-          appSourcePath: ${{ github.workspace }}
-          dockerfilePath: OrderService/Dockerfile  # 👈 specify the Dockerfile path if not at root
+          appSourcePath: OrderService
+          dockerfilePath: Dockerfile  # 👈 specify the Dockerfile path if not at root
           registryUrl: antraregistry.azurecr.io  # 👈 replace with your actual ACR URL
           registryUsername: ${{ secrets.ORDERSERVICE_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.ORDERSERVICE_REGISTRY_PASSWORD }}

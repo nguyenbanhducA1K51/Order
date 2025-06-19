@@ -1,0 +1,44 @@
+name: Trigger auto deployment for order-service
+
+on:
+    push:
+        branches:
+            - master
+        paths:
+            - 'ProductServiceService'
+            - '.github/workflows/product-service.yml'
+    
+    workflow_dispatch:
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        
+        permissions:
+            id-token: write
+            contents: read
+        
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Azure Login
+              uses: azure/login@v1
+              with:
+                  client-id: ${{ secrets.ORDERSERVICE_AZURE_CLIENT_ID }}
+                  tenant-id: ${{ secrets.ORDERSERVICE_AZURE_TENANT_ID }}
+                  subscription-id: ${{ secrets.ORDERSERVICE_AZURE_SUBSCRIPTION_ID }}
+
+            - name: Build and deploy to Azure Container Apps
+              uses: azure/container-apps-deploy-action@v2
+              with:
+                  appSourcePath: ProductService
+                  dockerfilePath: Dockerfile  # 👈 specify the Dockerfile path if not at root
+                  registryUrl: antraregistry.azurecr.io  # 👈 replace with your actual ACR URL
+                  registryUsername: ${{ secrets.ORDERSERVICE_REGISTRY_USERNAME }}
+                  registryPassword: ${{ secrets.ORDERSERVICE_REGISTRY_PASSWORD }}
+                  containerAppName: order-service
+                  resourceGroup: Antra
+                  imageToBuild: antraregistry.azurecr.io/order-service:${{ github.sha }}  # 👈 make sure this matches the registry
+                  buildArguments: |
+                      target=final
