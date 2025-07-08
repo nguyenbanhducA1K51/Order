@@ -1,45 +1,26 @@
+using System.Text.Json;
+using API.Filler;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Order.Contract.Repositories;
 using Order.Contract.Services;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Formatting.Compact;
+
 var builder = WebApplication.CreateBuilder(args);
+string aspnetcoreUrls = "http://0.0.0.0:5100"; 
 
-
-var envMappings = new Dictionary<string, string>
-{
-    {"aspnetcore-urls", "ASPNETCORE_URLS"},
-    {"dbconn", "ConnectionStrings:DefaultConnection"},
-    {"jwtkey", "JwtSettings:Secret"},
-    {"apikey", "ApiSettings:Key"},
-    {"logpath", "Logging:LogPath"},
-    {"redisconn", "ConnectionStrings:Redis"},
-    {"blobconn", "ConnectionStrings:BlobStorage"}
-};
-
-string aspnetcoreUrls = "http://0.0.0.0:80"; 
-
-foreach (var mapping in envMappings)
-{
-    var value = Environment.GetEnvironmentVariable(mapping.Key);
-    if (!string.IsNullOrEmpty(value))
-    {
-        builder.Configuration[mapping.Value] = value;
-        
-        if (mapping.Key == "aspnetcore-urls")
-        {
-            aspnetcoreUrls = value;
-        }
-    }
-}
+// aspnetcoreUrls=Environment.GetEnvironmentVariable("aspnetcore-urls");
 
 builder.WebHost.UseUrls(aspnetcoreUrls);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
+Console.WriteLine($"\n[DEBUG] Connection String: {connectionString}\n");
     builder.Services.AddDbContext<OrderDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -64,33 +45,58 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<RequestLoggingFilter>();
+});
 var app = builder.Build();
+// app.UseMiddleware<ExceptionHandlerMiddleware>();
+app.UseExceptionHandler("/error");
+
+app.UseExceptionHandler(exceptionHandlerApp =>
+{
+    exceptionHandlerApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+        
+        await context.Response.WriteAsync(JsonSerializer.Serialize(new
+        {
+            Message = "An error occurred while processing your request",
+            StatusCode = context.Response.StatusCode,
+            RequestId = context.TraceIdentifier
+        }));
+    });
+});
+app.MapGet("/db-test", async (OrderDbContext dbContext) => 
+{
+    try 
+    {
+        var canConnect = await dbContext.Database.CanConnectAsync();
+        return Results.Ok(new { 
+            Success = canConnect,
+            Message = canConnect ? "Database connected!" : "Could not connect to database"
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"Database connection failed: {ex.Message}");
+    }
+});
 
 var actionProvider = app.Services.GetService<IActionDescriptorCollectionProvider>();
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
-foreach (var mapping in envMappings)
-{
-    logger.LogInformation($" {mapping.Value} with value {Environment.GetEnvironmentVariable(mapping.Key)}");
-}
-
-
-if (actionProvider != null)
-{
-    var actionDescriptors = actionProvider.ActionDescriptors.Items;
-    var controllerNames = actionDescriptors
-        .Select(x => x.RouteValues["controller"])
-        .Where(x => !string.IsNullOrEmpty(x))
-        .Distinct()
-        .ToList();
-
-    logger.LogInformation($"Found {controllerNames.Count} controllers:");
-    foreach (var name in controllerNames)
-    {
-        logger.LogInformation($"- {name}");
-    }
-}
-
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File(new CompactJsonFormatter(), 
+        "Logs/logs.json",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 7)
+    .CreateLogger();
 
 if (app.Environment.IsDevelopment())
 {

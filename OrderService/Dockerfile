@@ -10,10 +10,20 @@ EXPOSE 80
 # ---------------------
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
+
+# First copy just the project files needed for restore
+COPY ["API/API.csproj", "API/"]
+COPY ["Directory.Build.props", "./"]
+COPY ["nuget.config", "./"]
+
+# Restore dependencies
+RUN dotnet restore "API/API.csproj" --verbosity normal
+
+# Now copy everything else
 COPY . .
-RUN dotnet restore "./API/API.csproj" --verbosity normal
-RUN ls -la ./API/
-RUN dotnet publish "./API/API.csproj" -c Release -o /app/publish
+
+# Build and publish
+RUN dotnet publish "API/API.csproj" -c Release -o /app/publish
 
 # ---------------------
 # Final image for production
@@ -24,13 +34,22 @@ COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "API.dll"]
 
 # ---------------------
-# Dev image without dotnet watch (bind-mount source code)
+# Dev image with proper tooling
 # ---------------------
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS dev
 WORKDIR /app
+
+# Copy project files first
+COPY ["API/API.csproj", "API/"]
+COPY ["Directory.Build.props", "./"]
+COPY ["nuget.config", "./"]
+
+# Restore including EF tools
+RUN dotnet restore "API/API.csproj" --verbosity normal
+RUN dotnet tool install --global dotnet-ef
+
+# Copy everything else
 COPY . .
 
-RUN dotnet tool install --global dotnet-ef 
-
 EXPOSE 80
-ENTRYPOINT ["dotnet",  "watch","run", "--project", "API/API.csproj"]
+ENTRYPOINT ["dotnet", "watch", "run", "--project", "API/API.csproj"]

@@ -1,4 +1,4 @@
-name: Trigger auto deployment for order-service
+name: Trigger auto deployment for product-service
 
 on:
     push:
